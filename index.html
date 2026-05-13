@@ -498,27 +498,41 @@
   <!-- ACTIVITIES SECTION -->
   <div id="activities-section" class="activities-section">
 
-    <div class="drive-status">
-      <div class="drive-dot" id="drive-dot"></div>
-      <span id="drive-status-text">ממתין לקישור Google Drive — כרגע מוצגים נתוני לוח השנה תשפ"ו שכבת ז'</span>
-      <button class="filter-btn secondary" style="margin-right:auto;padding:4px 12px;font-size:12px;" onclick="connectDrive()">🔗 חבר Drive</button>
-    </div>
-
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
       <div class="act-month-nav">
         <button class="act-nav-btn" onclick="changeActMonth(-1)">&#8249;</button>
         <div class="act-month-title" id="act-month-title"></div>
         <button class="act-nav-btn" onclick="changeActMonth(1)">&#8250;</button>
       </div>
-      <div class="act-type-tabs" id="act-type-tabs">
-        <div class="act-type-tab active" data-type="" onclick="setActType(this,'')">הכל</div>
-        <div class="act-type-tab" data-type="חג" onclick="setActType(this,'חג')">🕍 חגים וחופשות</div>
-        <div class="act-type-tab" data-type="טיול" onclick="setActType(this,'טיול')">🎒 טיולים</div>
-        <div class="act-type-tab" data-type="אסיפה" onclick="setActType(this,'אסיפה')">👥 אסיפות</div>
-        <div class="act-type-tab" data-type="אירוע" onclick="setActType(this,'אירוע')">⭐ אירועים</div>
-        <div class="act-type-tab" data-type="בוחן" onclick="setActType(this,'בוחן')">📝 בחנים/מבחנים</div>
+      <div class="act-type-tabs">
+        <div class="act-type-tab active" onclick="setActType(this,'')">הכל</div>
+        <div class="act-type-tab" onclick="setActType(this,'חג')">🕍 חגים</div>
+        <div class="act-type-tab" onclick="setActType(this,'טיול')">🎒 טיולים</div>
+        <div class="act-type-tab" onclick="setActType(this,'אסיפה')">👥 אסיפות</div>
+        <div class="act-type-tab" onclick="setActType(this,'אירוע')">⭐ אירועים</div>
+        <div class="act-type-tab" onclick="setActType(this,'בוחן')">📝 בחנים</div>
       </div>
+      <button class="filter-btn secondary" style="margin-right:auto;" onclick="toggleSettings()">⚙️ הגדרות קישורים</button>
     </div>
+
+    <div id="links-settings" style="display:none;background:#fff;border:1px solid #e5e5e0;border-radius:12px;padding:20px;margin-bottom:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div style="font-size:14px;font-weight:600;">🔗 קישורי Google Docs לפי כיתה</div>
+        <div style="display:flex;gap:8px;">
+          <button class="filter-btn" onclick="saveAllLinks()">💾 שמור הכל וטען</button>
+          <button class="filter-btn secondary" onclick="toggleSettings()">סגור</button>
+        </div>
+      </div>
+      <div style="font-size:12px;color:#888;margin-bottom:14px;padding:10px;background:#f8f8f5;border-radius:8px;">
+        <strong>פורמט המסמך:</strong> כל שורה: <code>DD/MM/YYYY | כותרת | סוג</code> &nbsp;|&nbsp; סוגים: חג / טיול / אסיפה / אירוע / בוחן<br>
+        <strong>חשוב:</strong> המסמך חייב להיות ציבורי — "כל מי שיש לו את הקישור יכול לצפות"
+      </div>
+      <div id="links-form"></div>
+    </div>
+
+    <div id="load-status" style="display:none;background:#f8f8f5;border:1px solid #e5e5e0;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#666;"></div>
+
+    <div class="class-tabs" id="act-class-tabs"></div>
 
     <div class="act-list" id="act-list"></div>
 
@@ -746,8 +760,7 @@ function renderGrades() {
   `).join('');
 }
 
-// ===== ACTIVITIES SECTION =====
-// Data from PDF — שנה"ל תשפ"ו שכבת ז'
+// ===== ACTIVITIES DATA (OLD - REPLACED) =====
 const activitiesData = [
   // אלול–תשרי
   {date:'2025-08-31',title:'יום היכרות ושיחות אישיות',type:'אירוע'},
@@ -862,12 +875,48 @@ const activitiesData = [
   {date:'2026-06-20',title:'תעודות',type:'אירוע'},
 ];
 
+// ===== ACTIVITIES SECTION =====
+const GRADES_CONFIG = [
+  { grade: 'ז', classes: ['ז1','ז2','ז3','ז4'] },
+  { grade: 'ח', classes: ['ח1','ח2','ח3','ח4'] },
+  { grade: 'ט', classes: ['ט1','ט2','ט3','ט4'] },
+];
+const ALL_CLASSES = GRADES_CONFIG.flatMap(g => g.classes);
+
+// נתוני פעילויות לפי כיתה — { 'ז1': [...], 'ז2': [...], ... }
+const classActivities = {};
+ALL_CLASSES.forEach(c => classActivities[c] = []);
+
+// ברירת מחדל לז1 מהPDF
+classActivities['ז1'] = [
+  {date:'2025-08-31',title:'יום היכרות ושיחות אישיות',type:'אירוע'},
+  {date:'2025-09-10',title:'אסיפת הורים כללית',type:'אסיפה'},
+  {date:'2025-09-15',title:'סיור סליחות',type:'אירוע'},
+  {date:'2025-09-23',title:'ראש השנה',type:'חג'},
+  {date:'2025-10-02',title:'יום כיפור',type:'חג'},
+  {date:'2025-10-07',title:'סוכות',type:'חג'},
+  {date:'2025-10-14',title:'שמחת תורה',type:'חג'},
+  {date:'2025-10-19',title:'בוחן במשנה',type:'בוחן'},
+  {date:'2025-10-29',title:'מסע חברות — חאן הראל',type:'טיול'},
+  {date:'2025-12-15',title:'חנוכה',type:'חג'},
+  {date:'2025-12-25',title:'מבחן מדעים',type:'בוחן'},
+  {date:'2026-02-02',title:'ט"ו בשבט',type:'חג'},
+  {date:'2026-03-03',title:'פורים',type:'חג'},
+  {date:'2026-04-02',title:'פסח',type:'חג'},
+  {date:'2026-04-19',title:'טיול שנתי שכבה ז\'',type:'טיול'},
+  {date:'2026-04-22',title:'יום העצמאות',type:'חג'},
+  {date:'2026-05-22',title:'שבועות',type:'חג'},
+  {date:'2026-06-09',title:'ערב סיום בר מצווה',type:'אירוע'},
+  {date:'2026-06-20',title:'תעודות',type:'אירוע'},
+];
+
 const typeTagClass = { 'חג':'tag-holiday','טיול':'tag-trip','אסיפה':'tag-assembly','אירוע':'tag-event','בוחן':'tag-test' };
-const typeEmoji   = { 'חג':'🕍','טיול':'🎒','אסיפה':'👥','אירוע':'⭐','בוחן':'📝' };
+const typeEmoji = { 'חג':'🕍','טיול':'🎒','אסיפה':'👥','אירוע':'⭐','בוחן':'📝' };
 
 let actMonth = new Date().getMonth();
 let actYear  = new Date().getFullYear();
 let actTypeFilter = '';
+let actActiveClass = 'ז1';
 
 function setActType(el, type) {
   actTypeFilter = type;
@@ -883,49 +932,166 @@ function changeActMonth(dir) {
   renderActivities();
 }
 
+function renderActClassTabs() {
+  document.getElementById('act-class-tabs').innerHTML = ALL_CLASSES.map(c => {
+    const hasData = classActivities[c] && classActivities[c].length > 0;
+    const dot = hasData ? '🟢' : '⚪';
+    return `<div class="class-tab${c===actActiveClass?' active':''}" onclick="switchActClass('${c}')">${dot} ${c}</div>`;
+  }).join('');
+}
+
+function switchActClass(cls) {
+  actActiveClass = cls;
+  renderActClassTabs();
+  renderActivities();
+}
+
 function renderActivities() {
   document.getElementById('act-month-title').textContent = heMonths[actMonth]+' '+actYear;
   const monthStr = actYear+'-'+(actMonth+1).toString().padStart(2,'0');
-  let items = activitiesData.filter(a => a.date.startsWith(monthStr));
+  let items = (classActivities[actActiveClass] || []).filter(a => a.date.startsWith(monthStr));
   if(actTypeFilter) items = items.filter(a=>a.type===actTypeFilter);
   items.sort((a,b)=>a.date.localeCompare(b.date));
 
   if(!items.length) {
-    document.getElementById('act-list').innerHTML = `<div class="act-empty">אין פעילויות לחודש זה${actTypeFilter?' בקטגוריה זו':''}</div>`;
+    document.getElementById('act-list').innerHTML = `<div class="act-empty">אין פעילויות לכיתה ${actActiveClass} בחודש זה${actTypeFilter?' בקטגוריה זו':''}</div>`;
     return;
   }
 
   document.getElementById('act-list').innerHTML = items.map(a=>{
     const d = new Date(a.date);
-    const dayNum = d.getDate();
-    const dayName = heDayNames[d.getDay()];
     return `
       <div class="act-item">
         <div class="act-date-block">
-          <div class="act-day-num">${dayNum}</div>
-          <div class="act-day-name">${dayName}</div>
+          <div class="act-day-num">${d.getDate()}</div>
+          <div class="act-day-name">${heDayNames[d.getDay()]}</div>
         </div>
         <div class="act-divider"></div>
         <div class="act-body">
           <div class="act-title">${typeEmoji[a.type]||''} ${a.title}</div>
           <div class="act-sub"><span class="act-tag ${typeTagClass[a.type]||'tag-event'}">${a.type}</span>${a.date.split('-').reverse().join('/')}</div>
         </div>
-      </div>
-    `;
+      </div>`;
   }).join('');
 }
 
-function connectDrive() {
-  const url = prompt('הכנס קישור Google Drive:');
-  if(url && url.startsWith('http')) {
-    document.getElementById('drive-status-text').textContent = 'מחובר ל-Google Drive — נתונים מתעדכנים אוטומטית';
-    document.getElementById('drive-dot').className = 'drive-dot connected';
+// ===== SETTINGS UI =====
+const LINKS_KEY = 'mashov_class_links';
+
+function toggleSettings() {
+  const s = document.getElementById('links-settings');
+  const isHidden = s.style.display==='none';
+  s.style.display = isHidden ? 'block' : 'none';
+  if(isHidden) buildLinksForm();
+}
+
+function buildLinksForm() {
+  const saved = JSON.parse(localStorage.getItem(LINKS_KEY)||'{}');
+  let html = '';
+  GRADES_CONFIG.forEach(g => {
+    html += `<div style="margin-bottom:16px;">
+      <div style="font-size:13px;font-weight:600;color:#444;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #f0f0ed;">שכבה ${g.grade}</div>`;
+    g.classes.forEach(cls => {
+      const actUrl  = saved[cls+'_act']  || '';
+      const examUrl = saved[cls+'_exam'] || '';
+      html += `<div style="display:grid;grid-template-columns:60px 1fr 1fr;gap:8px;align-items:center;margin-bottom:8px;">
+        <div style="font-size:13px;font-weight:600;">${cls}</div>
+        <input class="filter-input" id="link_${cls}_act"  value="${actUrl}"  placeholder="קישור לוח פעילויות" style="font-size:12px;">
+        <input class="filter-input" id="link_${cls}_exam" value="${examUrl}" placeholder="קישור לוח מבחנים"   style="font-size:12px;">
+      </div>`;
+    });
+    html += '</div>';
+  });
+  // כותרת עמודות
+  document.getElementById('links-form').innerHTML = `
+    <div style="display:grid;grid-template-columns:60px 1fr 1fr;gap:8px;margin-bottom:6px;">
+      <div></div>
+      <div style="font-size:11px;color:#888;text-align:center;">📅 לוח פעילויות</div>
+      <div style="font-size:11px;color:#888;text-align:center;">📝 לוח מבחנים</div>
+    </div>${html}`;
+}
+
+async function saveAllLinks() {
+  const links = {};
+  ALL_CLASSES.forEach(cls => {
+    const actEl  = document.getElementById('link_'+cls+'_act');
+    const examEl = document.getElementById('link_'+cls+'_exam');
+    if(actEl)  links[cls+'_act']  = actEl.value.trim();
+    if(examEl) links[cls+'_exam'] = examEl.value.trim();
+  });
+  localStorage.setItem(LINKS_KEY, JSON.stringify(links));
+  document.getElementById('links-settings').style.display = 'none';
+  await fetchAllDocs(links);
+}
+
+function getDocId(url) {
+  const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  return m ? m[1] : null;
+}
+
+function parseDocText(text) {
+  return text.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#')).map(line=>{
+    const parts = line.split('|').map(p=>p.trim());
+    if(parts.length < 3) return null;
+    const [dateStr, title, type] = parts;
+    const dm = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if(!dm) return null;
+    const [,d,m,y] = dm;
+    return { date:`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`, title, type };
+  }).filter(Boolean);
+}
+
+async function fetchDoc(url) {
+  const id = getDocId(url);
+  if(!id) return null;
+  try {
+    const res = await fetch(`https://docs.google.com/document/d/${id}/export?format=txt`);
+    if(!res.ok) return null;
+    return parseDocText(await res.text());
+  } catch { return null; }
+}
+
+async function fetchAllDocs(links) {
+  const status = document.getElementById('load-status');
+  status.style.display = 'block';
+  status.textContent = 'טוען נתונים...';
+  let loaded = 0, errors = 0;
+
+  for(const cls of ALL_CLASSES) {
+    const actUrl  = links[cls+'_act'];
+    const examUrl = links[cls+'_exam'];
+    let items = [];
+
+    if(actUrl) {
+      status.textContent = `טוען פעילויות ${cls}...`;
+      const data = await fetchDoc(actUrl);
+      if(data) items = [...items, ...data];
+      else errors++;
+    }
+    if(examUrl) {
+      status.textContent = `טוען מבחנים ${cls}...`;
+      const data = await fetchDoc(examUrl);
+      if(data) items = [...items, ...data];
+      else errors++;
+    }
+    if(items.length) { classActivities[cls] = items; loaded++; }
   }
+
+  status.textContent = `✅ נטענו ${loaded} כיתות${errors?' | ⚠️ '+errors+' שגיאות':''}`;
+  renderActClassTabs();
+  renderActivities();
 }
 
 // ===== INIT =====
 filteredGrades = [...gradesData];
+renderActClassTabs();
 renderActivities();
+
+// טעינה אוטומטית בפתיחה
+const savedLinks = JSON.parse(localStorage.getItem(LINKS_KEY)||'{}');
+if(Object.values(savedLinks).some(v=>v)) {
+  fetchAllDocs(savedLinks);
+}
 </script>
 </body>
 </html>

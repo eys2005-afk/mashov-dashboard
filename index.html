@@ -7,12 +7,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#ffffff;--bg2:#f5f5f3;--bg3:#eeede8;
-  --t1:#1a1a18;--t2:#5f5e5a;--t3:#888780;
-  --bd:rgba(0,0,0,0.12);--bd2:rgba(0,0,0,0.22);
-  --r:8px;--rl:12px;
-}
+:root{--bg:#ffffff;--bg2:#f5f5f3;--bg3:#eeede8;--t1:#1a1a18;--t2:#5f5e5a;--t3:#888780;--bd:rgba(0,0,0,0.12);--bd2:rgba(0,0,0,0.22);--r:8px;--rl:12px}
 body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:var(--bg2);color:var(--t1);direction:rtl;min-height:100vh;padding:1.5rem 1rem}
 .shell{max-width:1100px;margin:0 auto}
 .db-header{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap}
@@ -29,21 +24,20 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:var(--bg2)
 .panel{background:var(--bg);border:0.5px solid var(--bd);border-radius:var(--rl);padding:1rem 1.25rem}
 .panel-title{font-size:14px;font-weight:600;color:var(--t1);margin-bottom:12px;display:flex;align-items:center;gap:7px}
 .panel-title i{font-size:16px;color:var(--t2)}
-
-/* calendar */
 .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .cal-nav-label{font-size:13px;font-weight:600;color:var(--t1)}
 .cal-nav-btn{background:none;border:0.5px solid var(--bd);border-radius:6px;width:26px;height:26px;cursor:pointer;color:var(--t2);font-size:15px;display:flex;align-items:center;justify-content:center;font-family:inherit}
 .cal-nav-btn:hover{background:var(--bg3)}
 .cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px}
 .cal-dh{text-align:center;font-size:10px;color:var(--t3);padding:3px 0 6px}
-.cal-cell{min-height:58px;border-radius:6px;border:0.5px solid var(--bd);padding:3px 4px;background:var(--bg);cursor:pointer;transition:border-color .15s}
+.cal-cell{min-height:62px;border-radius:6px;border:0.5px solid var(--bd);padding:3px 4px;background:var(--bg);cursor:pointer;transition:border-color .15s}
 .cal-cell:hover{border-color:var(--bd2)}
 .cal-cell.ct{border-color:#185FA5;border-width:1.5px}
 .cal-cell.sh{background:var(--bg3)}
 .cal-cell.em{background:transparent;border-color:transparent;cursor:default}
-.cal-dn{font-size:10px;font-weight:500;color:var(--t2);margin-bottom:2px}
-.cal-cell.ct .cal-dn{color:#185FA5;font-weight:700}
+.cal-dn{font-size:11px;font-weight:600;color:var(--t2);line-height:1}
+.cal-cell.ct .cal-dn{color:#185FA5}
+.cal-hd{font-size:9px;color:var(--t3);margin-bottom:3px;line-height:1}
 .ec{font-size:9px;padding:1px 3px;border-radius:2px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
 .ec-x{background:#FAECE7;color:#993C1D}
 .ec-e{background:#E1F5EE;color:#0F6E56}
@@ -51,8 +45,6 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:var(--bg2)
 .ec-t{background:#E6F1FB;color:#185FA5}
 .ec-b{background:#EEEDFE;color:#3C3489}
 .more-c{font-size:9px;color:var(--t3);display:block}
-
-/* timeline */
 .tl{display:flex;flex-direction:column;gap:4px}
 .tl-row{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:var(--r);border:0.5px solid var(--bd);background:var(--bg);font-size:12px}
 .tl-row.exam{border-right:3px solid #D85A30}
@@ -63,8 +55,6 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:var(--bg2)
 .tl-title{flex:1;color:var(--t1)}
 .tl-date{font-size:11px;color:var(--t3);white-space:nowrap}
 .tl-grade{font-size:10px;padding:1px 6px;border-radius:3px;background:var(--bg3);color:var(--t2);white-space:nowrap}
-
-/* grades */
 .gs-controls{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
 .gs-controls select,.gs-controls input{font-size:12px;padding:5px 8px;border-radius:var(--r);border:0.5px solid var(--bd2);background:var(--bg);color:var(--t1);font-family:inherit}
 .gs-controls input{width:130px}
@@ -134,24 +124,95 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:var(--bg2)
 </div>
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@hebcal/core@5.8.4/dist/bundle.js"></script>
 <script>
 const TODAY=new Date(2026,4,14);
 const MONTHS=["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
 const DAYS=["א׳","ב׳","ג׳","ד׳","ה׳","ו׳","ש׳"];
 
+const HEB_MONTHS=["ניסן","אייר","סיון","תמוז","אב","אלול","תשרי","חשון","כסלו","טבת","שבט","אדר","אדר א׳","אדר ב׳"];
+const HEB_NUMS=["","א׳","ב׳","ג׳","ד׳","ה׳","ו׳","ז׳","ח׳","ט׳","י׳","י״א","י״ב","י״ג","י״ד","ט״ו","ט״ז","י״ז","י״ח","י״ט","כ׳","כ״א","כ״ב","כ״ג","כ״ד","כ״ה","כ״ו","כ״ז","כ״ח","כ״ט","ל׳"];
+
+function toHebrewDate(date) {
+  try {
+    if(window.Hebcal && window.Hebcal.HDate) {
+      const hd = new window.Hebcal.HDate(date);
+      const day = hd.getDate();
+      const month = hd.getMonthName('he');
+      return HEB_NUMS[day] + " " + month;
+    }
+  } catch(e){}
+  return hebrewDateFallback(date);
+}
+
+function hebrewDateFallback(date) {
+  const jd = gregorianToJD(date.getFullYear(), date.getMonth()+1, date.getDate());
+  const heb = jdToHebrew(jd);
+  return HEB_NUMS[heb.day] + " " + hebrewMonthName(heb.month, heb.year);
+}
+
+function gregorianToJD(y,m,d){
+  if(m<=2){y--;m+=12}
+  const A=Math.floor(y/100),B=2-A+Math.floor(A/4);
+  return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524.5;
+}
+
+function jdToHebrew(jd){
+  const jd0=Math.floor(jd)+0.5;
+  let year=Math.floor((jd0-347996.5)/365.25)+1;
+  while(hebrewYearStart(year+1)<=jd0) year++;
+  while(hebrewYearStart(year)>jd0) year--;
+  let month=1,monthStart=hebrewYearStart(year);
+  const monthLengths=getHebrewMonthLengths(year);
+  for(let m=1;m<=monthLengths.length;m++){
+    if(monthStart+monthLengths[m-1]>jd0){month=m;break}
+    monthStart+=monthLengths[m-1];
+  }
+  const day=Math.floor(jd0-monthStart)+1;
+  return{year,month,day};
+}
+
+function hebrewYearStart(year){
+  const months=(235*year-234)/19,parts=Math.floor(months)*25920+204;
+  let day=Math.floor(months)*29+Math.floor(parts/25920)+1;
+  const p=parts%25920,weekday=day%7;
+  if([0,3,5].includes(weekday)||(weekday===2&&p>=9924&&!isLeapYear(year))||(weekday===1&&p>=16789&&isLeapYear(year-1)))day++;
+  if([0,3,5].includes(day%7))day++;
+  return day+347996.5-1;
+}
+
+function isLeapYear(y){return((7*y)+1)%19<7}
+
+function getHebrewMonthLengths(year){
+  const leap=isLeapYear(year);
+  const yearDays=Math.round(hebrewYearStart(year+1)-hebrewYearStart(year));
+  let lengths=[30,29,30,29,30,29,30,29,30,29,30,29];
+  if(leap)lengths.splice(12,0,30);
+  if(yearDays===353||yearDays===383)lengths[2]=29;
+  if(yearDays===355||yearDays===385)lengths[1]=30;
+  return lengths;
+}
+
+function hebrewMonthName(m,year){
+  const leap=isLeapYear(year);
+  const names=leap?["ניסן","אייר","סיון","תמוז","אב","אלול","תשרי","חשון","כסלו","טבת","שבט","אדר א׳","אדר ב׳"]:["ניסן","אייר","סיון","תמוז","אב","אלול","תשרי","חשון","כסלו","טבת","שבט","אדר"];
+  return names[(m-1)%names.length]||"";
+}
+
 const events=[
-  {d:new Date(2026,4,14),title:"בוחן מתמטיקה",type:"exam",grades:[7],subj:"math"},
+  {d:new Date(2026,4,14),title:"בוחן מתמטיקה",type:"exam",grades:[7]},
   {d:new Date(2026,4,14),title:"אסיפת הורים ז׳",type:"event",grades:[7]},
   {d:new Date(2026,4,15),title:"טיול שנתי ח׳",type:"trip",grades:[8]},
   {d:new Date(2026,4,17),title:"יום הולדת — מרים לוי",type:"bday",grades:[7,8,9]},
-  {d:new Date(2026,4,18),title:"בוחן תנ״ך",type:"exam",grades:[8],subj:"bible"},
+  {d:new Date(2026,4,18),title:"בוחן תנ״ך",type:"exam",grades:[8]},
   {d:new Date(2026,4,19),title:"יום ירושלים",type:"holiday",grades:[7,8,9]},
-  {d:new Date(2026,4,20),title:"בוחן אנגלית ט׳",type:"exam",grades:[9],subj:"english"},
+  {d:new Date(2026,4,20),title:"בוחן אנגלית ט׳",type:"exam",grades:[9]},
   {d:new Date(2026,4,21),title:"ערב שבועות",type:"holiday",grades:[7,8,9]},
   {d:new Date(2026,4,22),title:"חג שבועות",type:"holiday",grades:[7,8,9]},
-  {d:new Date(2026,4,25),title:"בוחן מדעים ז׳",type:"exam",grades:[7],subj:"science"},
+  {d:new Date(2026,4,25),title:"בוחן מדעים ז׳",type:"exam",grades:[7]},
   {d:new Date(2026,4,26),title:"פעילות סיום שנה ט׳",type:"event",grades:[9]},
-  {d:new Date(2026,4,27),title:"בוחן היסטוריה ח׳",type:"exam",grades:[8],subj:"history"},
+  {d:new Date(2026,4,27),title:"בוחן היסטוריה ח׳",type:"exam",grades:[8]},
   {d:new Date(2026,4,28),title:"יום ספורט",type:"event",grades:[7,8,9]},
 ];
 
@@ -179,9 +240,12 @@ function renderCal(){
   for(let i=0;i<first.getDay();i++)h+='<div class="cal-cell em"></div>';
   for(let d=1;d<=dim;d++){
     const cd=new Date(calY,calM,d),isT=sd(cd,TODAY),isSh=cd.getDay()===6,de=evs.filter(e=>sd(e.d,cd));
-    h+=`<div class="cal-cell${isT?" ct":""}${isSh?" sh":""}"><div class="cal-dn">${d}</div>`;
-    de.slice(0,2).forEach(e=>{h+=`<span class="ec ${ecc(e.type)}">${e.title}</span>`});
-    if(de.length>2)h+=`<span class="more-c">+${de.length-2}</span>`;
+    const hebStr=hebrewDateFallback(cd);
+    h+=`<div class="cal-cell${isT?" ct":""}${isSh?" sh":""}">
+      <div class="cal-dn">${d}</div>
+      <div class="cal-hd">${hebStr}</div>`;
+    de.slice(0,1).forEach(e=>{h+=`<span class="ec ${ecc(e.type)}">${e.title}</span>`});
+    if(de.length>1)h+=`<span class="more-c">+${de.length-1}</span>`;
     h+='</div>';
   }
   document.getElementById("cgrid").innerHTML=h;

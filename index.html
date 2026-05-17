@@ -7,507 +7,347 @@
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Heebo',sans-serif; min-height:100vh; background:#0a0e1a; color:#e8edf5; overflow-x:hidden; }
 
-body {
-  font-family: 'Heebo', sans-serif;
-  min-height: 100vh;
-  background: #0a0e1a;
-  color: #e8edf5;
-  overflow-x: hidden;
+.bg { position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
+.orb { position:absolute; border-radius:50%; filter:blur(80px); opacity:0.22; animation:drift 14s ease-in-out infinite alternate; }
+.orb1 { width:500px; height:500px; background:#1e40af; top:-150px; right:-100px; }
+.orb2 { width:400px; height:400px; background:#5b21b6; bottom:-100px; left:5%; animation-delay:-5s; }
+.orb3 { width:300px; height:300px; background:#0e7490; top:30%; left:35%; animation-delay:-10s; }
+@keyframes drift { 0%{transform:translate(0,0)} 100%{transform:translate(30px,25px)} }
+
+.app { position:relative; z-index:1; display:flex; flex-direction:column; min-height:100vh; }
+
+/* Header */
+.header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 24px;
+  background:rgba(255,255,255,0.03);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,0.07);
+  position:sticky; top:0; z-index:50;
 }
+.logo { font-size:18px; font-weight:900; background:linear-gradient(135deg,#60a5fa,#a78bfa); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.logo-sub { font-size:11px; color:rgba(255,255,255,0.3); }
+.greeting { font-size:20px; font-weight:900; letter-spacing:-0.5px; }
+.greeting em { font-style:normal; color:#93c5fd; }
+.date-str { font-size:11px; color:rgba(255,255,255,0.3); margin-top:1px; }
 
-.bg { position:fixed; inset:0; z-index:0; overflow:hidden; }
-.orb { position:absolute; border-radius:50%; filter:blur(80px); opacity:0.35; animation:drift 12s ease-in-out infinite alternate; }
-.orb1 { width:500px; height:500px; background:#1e40af; top:-100px; right:-100px; animation-delay:0s; }
-.orb2 { width:400px; height:400px; background:#5b21b6; bottom:-80px; left:10%; animation-delay:-4s; }
-.orb3 { width:300px; height:300px; background:#0e7490; top:40%; left:40%; animation-delay:-8s; }
-@keyframes drift { 0%{transform:translate(0,0) scale(1)} 100%{transform:translate(40px,30px) scale(1.08)} }
+.sdot { width:7px; height:7px; border-radius:50%; background:#4ade80; box-shadow:0 0 8px #4ade80; }
+.sdot.loading { background:#f59e0b; box-shadow:0 0 8px #f59e0b; animation:blink 1s infinite; }
+.sdot.error   { background:#f87171; box-shadow:0 0 8px #f87171; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.stxt { font-size:11px; color:rgba(255,255,255,0.3); }
 
-.shell { display:flex; min-height:100vh; position:relative; z-index:1; }
+.btn-r { padding:7px 14px; border-radius:8px; border:1px solid rgba(96,165,250,0.3); background:rgba(96,165,250,0.1); color:#93c5fd; font-family:'Heebo',sans-serif; font-size:12px; font-weight:700; cursor:pointer; transition:all 0.2s; }
+.btn-r:hover { background:rgba(96,165,250,0.2); }
+.btn-r:disabled { opacity:0.4; cursor:not-allowed; }
 
-/* Sidebar */
-.sidebar {
-  width:230px; display:flex; flex-direction:column;
-  background:rgba(255,255,255,0.04);
-  backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
-  border-left:1px solid rgba(255,255,255,0.08);
-  padding:0 16px; position:fixed; top:0; right:0; bottom:0; gap:4px;
+/* Class filters */
+.filters {
+  display:flex; align-items:center; gap:6px; padding:10px 24px;
+  background:rgba(255,255,255,0.02); border-bottom:1px solid rgba(255,255,255,0.05); flex-wrap:wrap;
 }
-.logo { padding:28px 8px 24px; border-bottom:1px solid rgba(255,255,255,0.07); margin-bottom:10px; }
-.logo-name { font-size:20px; font-weight:900; letter-spacing:-0.5px; background:linear-gradient(135deg,#60a5fa,#a78bfa); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-.logo-sub { font-size:11px; color:rgba(255,255,255,0.3); margin-top:2px; }
-
-.nav-label { font-size:9px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,255,255,0.25); padding:14px 8px 4px; }
-.nav-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; font-size:13px; font-weight:500; color:rgba(255,255,255,0.45); cursor:pointer; transition:all 0.2s; text-decoration:none; }
-.nav-item:hover { background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.85); }
-.nav-item.active { background:rgba(96,165,250,0.15); color:#93c5fd; border:1px solid rgba(96,165,250,0.2); }
-.ni { font-size:15px; width:20px; text-align:center; }
-
-.sidebar-foot { margin-top:auto; padding:14px; background:rgba(255,255,255,0.05); border-radius:12px; border:1px solid rgba(255,255,255,0.07); margin-bottom:16px; }
-.sf-name { font-size:13px; font-weight:600; }
-.sf-role { font-size:11px; color:rgba(255,255,255,0.3); margin-top:2px; }
-
-/* Main */
-.main { flex:1; margin-right:230px; padding:36px 32px; display:flex; flex-direction:column; gap:24px; }
-
-/* Topbar */
-.topbar { display:flex; align-items:center; justify-content:space-between; animation:slideDown 0.5s ease both; }
-@keyframes slideDown { from{opacity:0;transform:translateY(-16px)} to{opacity:1;transform:none} }
-@keyframes slideUp   { from{opacity:0;transform:translateY(16px)}  to{opacity:1;transform:none} }
-
-.page-title { font-size:28px; font-weight:900; letter-spacing:-1px; }
-.page-title em { font-style:normal; color:#93c5fd; }
-.page-sub { font-size:13px; color:rgba(255,255,255,0.3); margin-top:4px; }
-
-.top-actions { display:flex; gap:10px; align-items:center; }
-.btn { padding:9px 18px; border-radius:10px; font-family:'Heebo',sans-serif; font-size:13px; font-weight:600; cursor:pointer; border:none; transition:all 0.2s; }
-.btn-glow { background:rgba(96,165,250,0.2); color:#93c5fd; border:1px solid rgba(96,165,250,0.3); backdrop-filter:blur(8px); }
-.btn-glow:hover { background:rgba(96,165,250,0.3); transform:translateY(-1px); box-shadow:0 8px 24px rgba(96,165,250,0.2); }
-.btn-glow:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
-.btn-solid { background:#2563eb; color:white; }
-.btn-solid:hover { background:#1d4ed8; transform:translateY(-1px); }
-
-/* Status bar */
-.status-bar {
-  display:flex; align-items:center; gap:8px; font-size:12px;
-  color:rgba(255,255,255,0.35); animation:slideDown 0.5s ease 0.05s both;
+.flbl { font-size:10px; font-weight:800; color:rgba(255,255,255,0.25); letter-spacing:1px; text-transform:uppercase; margin-left:2px; }
+.ftag {
+  padding:4px 11px; border-radius:16px; font-size:12px; font-weight:600;
+  border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.35);
+  background:transparent; cursor:pointer; font-family:'Heebo',sans-serif; transition:all 0.15s;
 }
-.status-dot { width:7px; height:7px; border-radius:50%; background:#4ade80; box-shadow:0 0 8px #4ade80; }
-.status-dot.loading { background:#f59e0b; box-shadow:0 0 8px #f59e0b; animation:pulse 1s infinite; }
-.status-dot.error { background:#f87171; box-shadow:0 0 8px #f87171; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.ftag:hover { border-color:rgba(167,139,250,0.3); color:#c4b5fd; }
+.ftag.active { background:rgba(167,139,250,0.15); border-color:rgba(167,139,250,0.35); color:#c4b5fd; }
+.vsep { width:1px; height:18px; background:rgba(255,255,255,0.08); }
 
-/* Glass */
-.glass { background:rgba(255,255,255,0.04); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.08); border-radius:18px; }
+/* 3 panels */
+.panels { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; padding:16px 24px; align-items:start; }
 
-/* KPIs */
-.kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; animation:slideUp 0.5s ease 0.1s both; }
-.kpi { padding:22px 20px; position:relative; overflow:hidden; transition:transform 0.2s,box-shadow 0.2s; }
-.kpi:hover { transform:translateY(-3px); box-shadow:0 16px 40px rgba(0,0,0,0.3); }
-.kpi-glow { position:absolute; width:120px; height:120px; border-radius:50%; filter:blur(40px); opacity:0.25; top:-20px; left:-20px; }
-.kpi.k1 .kpi-glow{background:#60a5fa} .kpi.k2 .kpi-glow{background:#34d399} .kpi.k3 .kpi-glow{background:#f59e0b} .kpi.k4 .kpi-glow{background:#a78bfa}
-.kpi-top { display:flex; justify-content:space-between; align-items:flex-start; }
-.kpi-icon { font-size:22px; }
-.kpi-val { font-size:38px; font-weight:900; letter-spacing:-2px; margin:10px 0 4px; }
-.kpi.k1 .kpi-val{color:#93c5fd} .kpi.k2 .kpi-val{color:#6ee7b7} .kpi.k3 .kpi-val{color:#fcd34d} .kpi.k4 .kpi-val{color:#c4b5fd}
-.kpi-lbl { font-size:11px; color:rgba(255,255,255,0.35); font-weight:600; letter-spacing:0.5px; text-transform:uppercase; }
+.panel { background:rgba(255,255,255,0.04); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.08); border-radius:14px; overflow:hidden; display:flex; flex-direction:column; }
 
-/* Grid */
-.grid-main { display:grid; grid-template-columns:1.3fr 1fr; gap:20px; animation:slideUp 0.5s ease 0.2s both; }
-.grid-bottom { display:grid; grid-template-columns:1fr 1fr; gap:20px; animation:slideUp 0.5s ease 0.3s both; }
+.panel-head { padding:16px 18px 12px; border-bottom:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:space-between; }
+.panel-title { font-size:14px; font-weight:800; }
+.pcnt { font-size:10px; font-weight:700; padding:2px 8px; border-radius:16px; }
+.pcnt-blue   { background:rgba(96,165,250,0.15); color:#93c5fd; border:1px solid rgba(96,165,250,0.2); }
+.pcnt-yellow { background:rgba(245,158,11,0.15);  color:#fcd34d; border:1px solid rgba(245,158,11,0.2); }
+.pcnt-green  { background:rgba(52,211,153,0.15);  color:#6ee7b7; border:1px solid rgba(52,211,153,0.2); }
 
-.card-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
-.card-title { font-size:14px; font-weight:700; color:rgba(255,255,255,0.8); }
-.chip { font-size:10px; font-weight:700; letter-spacing:0.5px; padding:3px 9px; border-radius:20px; }
-.chip-blue  { background:rgba(96,165,250,0.15); color:#93c5fd; border:1px solid rgba(96,165,250,0.2); }
-.chip-green { background:rgba(52,211,153,0.15); color:#6ee7b7; border:1px solid rgba(52,211,153,0.2); }
-.chip-yellow{ background:rgba(245,158,11,0.15); color:#fcd34d; border:1px solid rgba(245,158,11,0.2); }
-.chip-red   { background:rgba(248,113,113,0.15); color:#f87171; border:1px solid rgba(248,113,113,0.2); }
+/* Month tabs */
+.mbar { padding:8px 14px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; gap:4px; flex-wrap:wrap; }
+.mtag { padding:3px 9px; border-radius:14px; font-size:11px; font-weight:600; border:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.3); background:transparent; cursor:pointer; font-family:'Heebo',sans-serif; transition:all 0.15s; }
+.mtag:hover { color:rgba(255,255,255,0.6); border-color:rgba(255,255,255,0.15); }
+.mtag.active { background:rgba(96,165,250,0.12); border-color:rgba(96,165,250,0.3); color:#93c5fd; }
 
-/* Events */
-.evt-list { display:flex; flex-direction:column; gap:8px; max-height:340px; overflow-y:auto; }
-.evt-list::-webkit-scrollbar { width:4px; }
-.evt-list::-webkit-scrollbar-track { background:transparent; }
-.evt-list::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:4px; }
+/* Panel body */
+.pbody { max-height:calc(100vh - 260px); overflow-y:auto; }
+.pbody::-webkit-scrollbar { width:3px; }
+.pbody::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); border-radius:3px; }
 
-.evt-item { display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); transition:background 0.2s; }
-.evt-item:hover { background:rgba(255,255,255,0.06); }
-.evt-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-.evt-info { flex:1; min-width:0; }
-.evt-name { font-size:13px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.evt-meta { font-size:11px; color:rgba(255,255,255,0.3); margin-top:2px; }
-.evt-badge { font-size:10px; font-weight:700; padding:2px 8px; border-radius:4px; flex-shrink:0; }
+/* Row */
+.row { display:flex; align-items:flex-start; gap:10px; padding:11px 16px; border-bottom:1px solid rgba(255,255,255,0.04); transition:background 0.15s; }
+.row:last-child { border-bottom:none; }
+.row:hover { background:rgba(255,255,255,0.03); }
+.dblock { text-align:center; flex-shrink:0; width:32px; }
+.dday { font-size:18px; font-weight:900; line-height:1; }
+.dmon { font-size:9px; font-weight:700; letter-spacing:0.3px; text-transform:uppercase; color:rgba(255,255,255,0.28); margin-top:1px; }
+.dsep { width:1px; background:rgba(255,255,255,0.06); align-self:stretch; flex-shrink:0; }
+.rinfo { flex:1; min-width:0; }
+.rtitle { font-size:13px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.rmeta  { font-size:11px; color:rgba(255,255,255,0.28); margin-top:3px; display:flex; align-items:center; gap:6px; }
+.rbadge { font-size:10px; font-weight:700; padding:2px 7px; border-radius:4px; flex-shrink:0; }
 
-/* Upcoming tests */
-.test-item { display:flex; justify-content:space-between; align-items:center; padding:11px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
-.test-item:last-child { border-bottom:none; }
-.test-name { font-size:13px; font-weight:500; }
-.test-date { font-size:11px; color:rgba(255,255,255,0.3); margin-top:2px; }
-.days-left { font-size:11px; font-weight:700; padding:3px 8px; border-radius:4px; background:rgba(96,165,250,0.1); color:#93c5fd; }
-.days-left.soon { background:rgba(248,113,113,0.1); color:#f87171; }
+.b-בוחן  { background:rgba(96,165,250,0.15); color:#93c5fd; }
+.b-אירוע { background:rgba(52,211,153,0.15); color:#6ee7b7; }
+.b-טיול  { background:rgba(245,158,11,0.15); color:#fcd34d; }
+.b-חג    { background:rgba(167,139,250,0.15); color:#c4b5fd; }
+.b-אסיפה { background:rgba(248,113,113,0.15); color:#f87171; }
 
-/* Stats grid */
-.stat-row { display:flex; justify-content:space-between; gap:12px; margin-bottom:16px; }
-.stat-box { flex:1; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px; text-align:center; }
-.stat-val { font-size:26px; font-weight:900; letter-spacing:-1px; }
-.stat-lbl { font-size:10px; color:rgba(255,255,255,0.35); margin-top:4px; text-transform:uppercase; letter-spacing:0.5px; }
+.dp { font-size:10px; font-weight:700; padding:1px 6px; border-radius:3px; }
+.dp-today { background:rgba(52,211,153,0.2); color:#6ee7b7; }
+.dp-soon  { background:rgba(248,113,113,0.12); color:#f87171; }
+.dp-norm  { background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.3); }
+.dp-past  { background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.2); }
 
-/* Month filter */
-.month-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
-.mtab { padding:5px 12px; border-radius:20px; font-size:12px; font-weight:600; cursor:pointer; border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.4); background:transparent; transition:all 0.15s; font-family:'Heebo',sans-serif; }
-.mtab:hover { border-color:rgba(96,165,250,0.3); color:#93c5fd; }
-.mtab.active { background:rgba(96,165,250,0.15); border-color:rgba(96,165,250,0.3); color:#93c5fd; }
+/* Grades */
+.gsec { padding:12px 16px; border-bottom:1px solid rgba(255,255,255,0.05); }
+.gsec:last-child { border-bottom:none; }
+.gclslbl { font-size:10px; font-weight:800; letter-spacing:0.8px; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:8px; }
+.grow { display:flex; align-items:center; gap:8px; margin-bottom:7px; }
+.grow:last-child { margin-bottom:0; }
+.gsubj { font-size:12px; color:rgba(255,255,255,0.55); flex:1; }
+.gbw { width:70px; height:3px; background:rgba(255,255,255,0.07); border-radius:3px; overflow:hidden; }
+.gb { height:100%; border-radius:3px; }
+.gval { font-size:12px; font-weight:800; width:28px; text-align:left; }
+.hi { color:#6ee7b7; } .md { color:#fcd34d; } .lo { color:#f87171; }
+.ghi { background:linear-gradient(90deg,#34d399,#6ee7b7); }
+.gmd { background:linear-gradient(90deg,#f59e0b,#fcd34d); }
+.glo { background:linear-gradient(90deg,#ef4444,#f87171); }
 
-/* Loading skeleton */
-.skeleton { background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:8px; }
-@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-
-/* Type colors */
-.type-בוחן   { background:rgba(96,165,250,0.15); color:#93c5fd; }
-.type-אירוע  { background:rgba(52,211,153,0.15); color:#6ee7b7; }
-.type-טיול   { background:rgba(245,158,11,0.15);  color:#fcd34d; }
-.type-חג     { background:rgba(167,139,250,0.15); color:#c4b5fd; }
-.type-אסיפה  { background:rgba(248,113,113,0.15); color:#f87171; }
-
-.dot-בוחן  { background:#93c5fd; }
-.dot-אירוע { background:#6ee7b7; }
-.dot-טיול  { background:#fcd34d; }
-.dot-חג    { background:#c4b5fd; }
-.dot-אסיפה { background:#f87171; }
+.empty { padding:40px 16px; text-align:center; color:rgba(255,255,255,0.18); font-size:12px; }
+.skel { background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.07) 50%,rgba(255,255,255,0.04) 75%); background-size:200% 100%; animation:sh 1.5s infinite; border-radius:6px; margin:10px 16px; }
+@keyframes sh { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 </style>
 </head>
 <body>
+<div class="bg"><div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div></div>
 
-<div class="bg">
-  <div class="orb orb1"></div>
-  <div class="orb orb2"></div>
-  <div class="orb orb3"></div>
-</div>
+<div class="app">
 
-<div class="shell">
-  <nav class="sidebar">
-    <div class="logo">
-      <div class="logo-name">משו"ב</div>
-      <div class="logo-sub">דשבורד מנהל</div>
+  <header class="header">
+    <div style="display:flex;align-items:center;gap:14px">
+      <div><div class="logo">משו"ב</div><div class="logo-sub">דשבורד מנהל</div></div>
+      <div style="width:1px;height:32px;background:rgba(255,255,255,0.08)"></div>
+      <div><div class="greeting">שלום, <em>איתמר אוחיון</em> 👋</div><div class="date-str" id="dstr"></div></div>
     </div>
-    <div class="nav-label">ראשי</div>
-    <a class="nav-item active"><span class="ni">⬡</span> סקירה כללית</a>
-    <a class="nav-item"><span class="ni">📅</span> לוח אירועים</a>
-    <a class="nav-item"><span class="ni">📝</span> מבחנים ובוחנים</a>
-    <a class="nav-item"><span class="ni">🗺️</span> טיולים</a>
-    <div class="nav-label">ניהול</div>
-    <a class="nav-item"><span class="ni">🏫</span> כיתות</a>
-    <a class="nav-item"><span class="ni">📋</span> דוחות</a>
-    <a class="nav-item"><span class="ni">⚙️</span> הגדרות</a>
-    <div class="sidebar-foot">
-      <div class="sf-name">איתמר אוחיון</div>
-      <div class="sf-role">שנה"ל תשפ"ו</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="display:flex;align-items:center;gap:7px">
+        <div class="sdot loading" id="sdot"></div>
+        <div class="stxt" id="stxt">מתחבר...</div>
+      </div>
+      <button class="btn-r" id="rbtn" onclick="load()">↻ רענן</button>
     </div>
-  </nav>
+  </header>
 
-  <main class="main">
-    <!-- Topbar -->
-    <div class="topbar">
-      <div>
-        <div class="page-title">שלום, <em>איתמר</em> 👋</div>
-        <div class="page-sub" id="today-date">טוען תאריך...</div>
-      </div>
-      <div class="top-actions">
-        <button class="btn btn-glow" id="refresh-btn" onclick="loadData()">↻ רענן נתונים</button>
-      </div>
-    </div>
+  <div class="filters">
+    <span class="flbl">כיתה:</span>
+    <button class="ftag active" onclick="setCls('all',this)">כולם</button>
+    <div class="vsep"></div>
+    <button class="ftag" onclick="setCls('ז',this)">שכבה ז׳</button>
+    <button class="ftag" onclick="setCls('ח',this)">שכבה ח׳</button>
+    <button class="ftag" onclick="setCls('ט',this)">שכבה ט׳</button>
+    <div class="vsep"></div>
+    <button class="ftag" onclick="setCls('ז1',this)">ז1</button>
+    <button class="ftag" onclick="setCls('ז2',this)">ז2</button>
+    <button class="ftag" onclick="setCls('ז3',this)">ז3</button>
+    <button class="ftag" onclick="setCls('ז4',this)">ז4</button>
+    <div class="vsep"></div>
+    <button class="ftag" onclick="setCls('ח1',this)">ח1</button>
+    <button class="ftag" onclick="setCls('ח2',this)">ח2</button>
+    <button class="ftag" onclick="setCls('ח3',this)">ח3</button>
+    <div class="vsep"></div>
+    <button class="ftag" onclick="setCls('ט1',this)">ט1</button>
+    <button class="ftag" onclick="setCls('ט2',this)">ט2</button>
+    <button class="ftag" onclick="setCls('ט3',this)">ט3</button>
+  </div>
 
-    <!-- Status -->
-    <div class="status-bar">
-      <div class="status-dot" id="status-dot"></div>
-      <span id="status-text">מתחבר ל-Backend...</span>
-    </div>
+  <div class="panels">
 
-    <!-- KPIs -->
-    <div class="kpis">
-      <div class="kpi glass k1">
-        <div class="kpi-glow"></div>
-        <div class="kpi-top"><span class="kpi-icon">📅</span></div>
-        <div class="kpi-val" id="kpi-total">—</div>
-        <div class="kpi-lbl">סה"כ אירועים</div>
+    <div class="panel">
+      <div class="panel-head">
+        <span class="panel-title">📅 לוח אירועים</span>
+        <span class="pcnt pcnt-blue" id="evcnt">—</span>
       </div>
-      <div class="kpi glass k2">
-        <div class="kpi-glow"></div>
-        <div class="kpi-top"><span class="kpi-icon">📝</span></div>
-        <div class="kpi-val" id="kpi-tests">—</div>
-        <div class="kpi-lbl">בוחנים ומבחנים</div>
-      </div>
-      <div class="kpi glass k3">
-        <div class="kpi-glow"></div>
-        <div class="kpi-top"><span class="kpi-icon">🗺️</span></div>
-        <div class="kpi-val" id="kpi-trips">—</div>
-        <div class="kpi-lbl">טיולים</div>
-      </div>
-      <div class="kpi glass k4">
-        <div class="kpi-glow"></div>
-        <div class="kpi-top"><span class="kpi-icon">⏰</span></div>
-        <div class="kpi-val" id="kpi-upcoming">—</div>
-        <div class="kpi-lbl">אירועים קרובים</div>
-      </div>
+      <div class="mbar" id="evmons"></div>
+      <div class="pbody" id="evbody"><div class="skel" style="height:44px"></div><div class="skel" style="height:44px"></div><div class="skel" style="height:44px"></div></div>
     </div>
 
-    <!-- Main grid -->
-    <div class="grid-main">
-      <!-- Events list -->
-      <div class="glass" style="padding:24px">
-        <div class="card-head">
-          <span class="card-title">אירועים קרובים</span>
-          <span class="chip chip-blue" id="events-count">טוען...</span>
-        </div>
-        <div class="month-tabs" id="month-tabs"></div>
-        <div class="evt-list" id="events-list">
-          <div class="skeleton" style="height:48px;margin-bottom:8px"></div>
-          <div class="skeleton" style="height:48px;margin-bottom:8px"></div>
-          <div class="skeleton" style="height:48px;margin-bottom:8px"></div>
-          <div class="skeleton" style="height:48px"></div>
-        </div>
+    <div class="panel">
+      <div class="panel-head">
+        <span class="panel-title">📝 לוח בחינות</span>
+        <span class="pcnt pcnt-yellow" id="tcnt">—</span>
       </div>
-
-      <!-- Upcoming tests -->
-      <div class="glass" style="padding:24px">
-        <div class="card-head">
-          <span class="card-title">בוחנים קרובים</span>
-          <span class="chip chip-yellow" id="tests-count">טוען...</span>
-        </div>
-        <div id="tests-list">
-          <div class="skeleton" style="height:52px;margin-bottom:10px"></div>
-          <div class="skeleton" style="height:52px;margin-bottom:10px"></div>
-          <div class="skeleton" style="height:52px;margin-bottom:10px"></div>
-          <div class="skeleton" style="height:52px"></div>
-        </div>
-      </div>
+      <div class="mbar" id="tmons"></div>
+      <div class="pbody" id="tbody"><div class="skel" style="height:44px"></div><div class="skel" style="height:44px"></div><div class="skel" style="height:44px"></div></div>
     </div>
 
-    <!-- Bottom grid -->
-    <div class="grid-bottom">
-      <!-- Stats by type -->
-      <div class="glass" style="padding:24px">
-        <div class="card-head">
-          <span class="card-title">פילוח אירועים לפי סוג</span>
-          <span class="chip chip-green">כל השנה</span>
-        </div>
-        <div id="stats-grid">
-          <div class="skeleton" style="height:80px"></div>
-        </div>
+    <div class="panel">
+      <div class="panel-head">
+        <span class="panel-title">🎓 ציונים</span>
+        <span class="pcnt pcnt-green">דמו</span>
       </div>
-
-      <!-- Next event highlight -->
-      <div class="glass" style="padding:24px">
-        <div class="card-head">
-          <span class="card-title">האירוע הבא</span>
-          <span class="chip chip-blue">הקרוב ביותר</span>
-        </div>
-        <div id="next-event">
-          <div class="skeleton" style="height:120px"></div>
-        </div>
+      <div class="mbar">
+        <button class="mtag active" onclick="setSubj('all',this)">הכל</button>
+        <button class="mtag" onclick="setSubj('מתמטיקה',this)">מתמטיקה</button>
+        <button class="mtag" onclick="setSubj('אנגלית',this)">אנגלית</button>
+        <button class="mtag" onclick="setSubj('תנ&quot;ך',this)">תנ"ך</button>
+        <button class="mtag" onclick="setSubj('היסטוריה',this)">היסטוריה</button>
+        <button class="mtag" onclick="setSubj('מדעים',this)">מדעים</button>
       </div>
+      <div class="pbody" id="gbody"></div>
     </div>
-  </main>
+
+  </div>
 </div>
 
 <script>
-const BACKEND   = 'https://mashov-backend.onrender.com';
-const DOC_URL   = 'https://docs.google.com/document/d/1lUqdjDE9ir21p8cHeqKxyzzgfCKFuwl3RAreXi6CtAk/edit';
-const SECRET    = 'mashov2026';
-let allEvents = [];
-let activeMonth = null;
-const today = new Date();
+const BACKEND='https://mashov-backend.onrender.com';
+const DOC_URL='https://docs.google.com/document/d/1lUqdjDE9ir21p8cHeqKxyzzgfCKFuwl3RAreXi6CtAk/edit';
+const SECRET='mashov2026';
+const MS=['','ינו','פבר','מרץ','אפר','מאי','יוני','יולי','אוג','ספט','אוק','נוב','דצמ'];
+const today=new Date();
 
-// Today's date in Hebrew
-const days = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
-const months = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
-document.getElementById('today-date').textContent =
-  `יום ${days[today.getDay()]}, ${today.getDate()} ב${months[today.getMonth()]} ${today.getFullYear()} • שנה"ל תשפ"ו`;
+let all=[], cls='all', evm='all', tm='all', subj='all';
 
-function parseDate(str) {
-  const [d,m,y] = str.split('/').map(Number);
-  return new Date(y, m-1, d);
+// Date header
+const D=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+const M=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+document.getElementById('dstr').textContent=`יום ${D[today.getDay()]}, ${today.getDate()} ב${M[today.getMonth()]} ${today.getFullYear()} • שנה"ל תשפ"ו`;
+
+function pd(s){const[d,m,y]=s.split('/').map(Number);return new Date(y,m-1,d);}
+function dl(s){return Math.ceil((pd(s)-today)/86400000);}
+
+function setSt(st,txt){
+  const d=document.getElementById('sdot');
+  d.className='sdot'+(st==='loading'?' loading':st==='error'?' error':'');
+  document.getElementById('stxt').textContent=txt;
 }
 
-function daysFromNow(dateStr) {
-  const d = parseDate(dateStr);
-  return Math.ceil((d - today) / 86400000);
-}
-
-function formatDate(str) {
-  const [d,m,y] = str.split('/');
-  return `${d}/${m}/${y}`;
-}
-
-function setStatus(state, text) {
-  const dot = document.getElementById('status-dot');
-  dot.className = 'status-dot' + (state === 'loading' ? ' loading' : state === 'error' ? ' error' : '');
-  document.getElementById('status-text').textContent = text;
-}
-
-async function loadData() {
-  const btn = document.getElementById('refresh-btn');
-  btn.disabled = true;
-  btn.textContent = 'טוען...';
-  setStatus('loading', 'מתחבר ל-Backend...');
-
-  try {
-    const res = await fetch(`${BACKEND}/events`);
-    const data = await res.json();
-    const events = data.events || data['אירועים'] || [];
-
-    if (events.length > 0) {
-      allEvents = events;
-      setStatus('ok', `עודכן • ${allEvents.length} אירועים נטענו`);
-      renderAll();
-    } else {
-      setStatus('loading', 'טוען נתונים מ-Google Doc...');
-      await doBackendRefresh();
-    }
-  } catch(e) {
-    setStatus('error', 'שגיאת חיבור ל-Backend');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '↻ רענן נתונים';
-  }
-}
-
-async function doBackendRefresh() {
-  try {
-    const res = await fetch(`${BACKEND}/refresh`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ secret: SECRET, doc_url: DOC_URL })
-    });
-    const data = await res.json();
-    if (res.ok && data.events) {
-      allEvents = data.events;
-      setStatus('ok', `עודכן • ${allEvents.length} אירועים נטענו מ-Google Doc`);
-      renderAll();
-    } else {
-      setStatus('error', 'שגיאה בטעינת נתונים');
-    }
-  } catch(e) {
-    setStatus('error', 'שגיאת חיבור בעת רענון');
-  }
-}
-
-function renderAll() {
-  const future = allEvents.filter(e => daysFromNow(e.date) >= 0);
-  const past   = allEvents.filter(e => daysFromNow(e.date) < 0);
-
-  // KPIs
-  document.getElementById('kpi-total').textContent = allEvents.length;
-  document.getElementById('kpi-tests').textContent = allEvents.filter(e=>e.type==='בוחן').length;
-  document.getElementById('kpi-trips').textContent = allEvents.filter(e=>e.type==='טיול').length;
-  document.getElementById('kpi-upcoming').textContent = future.length;
-
-  // Month tabs from future events
-  const monthSet = [...new Set(future.map(e => {
-    const [,m,y] = e.date.split('/');
-    return `${m}/${y}`;
-  }))].slice(0, 6);
-
-  const tabsEl = document.getElementById('month-tabs');
-  tabsEl.innerHTML = `<button class="mtab active" onclick="filterMonth(null, this)">הכל</button>` +
-    monthSet.map(my => {
-      const [m] = my.split('/');
-      const name = ['','ינו','פבר','מרץ','אפר','מאי','יוני','יולי','אוג','ספט','אוק','נוב','דצמ'][parseInt(m)];
-      return `<button class="mtab" onclick="filterMonth('${my}', this)">${name}</button>`;
-    }).join('');
-
-  renderEvents(future);
-  renderTests(future);
-  renderStats();
-  renderNextEvent(future);
-}
-
-function filterMonth(my, btn) {
-  activeMonth = my;
-  document.querySelectorAll('.mtab').forEach(t => t.classList.remove('active'));
+function setCls(c,btn){
+  cls=c;
+  document.querySelectorAll('.ftag').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-
-  let filtered = allEvents.filter(e => daysFromNow(e.date) >= 0);
-  if (my) {
-    filtered = filtered.filter(e => {
-      const [,m,y] = e.date.split('/');
-      return `${m}/${y}` === my;
-    });
-  }
-  renderEvents(filtered);
+  renderAll();
 }
 
-function renderEvents(events) {
-  const el = document.getElementById('events-list');
-  document.getElementById('events-count').textContent = `${events.length} אירועים`;
-
-  if (!events.length) {
-    el.innerHTML = `<div style="text-align:center;color:rgba(255,255,255,0.2);padding:40px">אין אירועים</div>`;
-    return;
-  }
-
-  el.innerHTML = events.slice(0, 20).map(e => {
-    const days = daysFromNow(e.date);
-    const daysStr = days === 0 ? 'היום!' : days === 1 ? 'מחר' : `בעוד ${days} ימים`;
-    return `
-      <div class="evt-item">
-        <div class="evt-dot dot-${e.type}"></div>
-        <div class="evt-info">
-          <div class="evt-name">${e.title}</div>
-          <div class="evt-meta">${formatDate(e.date)} • ${daysStr}</div>
-        </div>
-        <div class="evt-badge type-${e.type}">${e.type}</div>
-      </div>`;
-  }).join('');
+function byClass(evs){
+  if(cls==='all') return evs;
+  if(cls.length===1) return evs.filter(e=>(e.title||'').includes(cls));
+  return evs.filter(e=>(e.title||'').includes(cls));
 }
 
-function renderTests(future) {
-  const tests = future.filter(e => e.type === 'בוחן').slice(0, 6);
-  document.getElementById('tests-count').textContent = `${tests.length} קרובים`;
-
-  const el = document.getElementById('tests-list');
-  if (!tests.length) {
-    el.innerHTML = `<div style="text-align:center;color:rgba(255,255,255,0.2);padding:40px">אין בוחנים קרובים</div>`;
-    return;
-  }
-
-  el.innerHTML = tests.map(e => {
-    const d = daysFromNow(e.date);
-    const cls = d <= 7 ? 'soon' : '';
-    const dStr = d === 0 ? 'היום!' : d === 1 ? 'מחר' : `${d} ימים`;
-    return `
-      <div class="test-item">
-        <div>
-          <div class="test-name">${e.title}</div>
-          <div class="test-date">${formatDate(e.date)}</div>
-        </div>
-        <div class="days-left ${cls}">${dStr}</div>
-      </div>`;
-  }).join('');
+function byMonth(evs,m){
+  if(m==='all') return evs;
+  return evs.filter(e=>{const[,mm,yy]=e.date.split('/');return `${mm}/${yy}`===m;});
 }
 
-function renderStats() {
-  const types = ['בוחן','אירוע','טיול','חג','אסיפה'];
-  const labels = {בוחן:'📝 בוחנים', אירוע:'🎉 אירועים', טיול:'🗺️ טיולים', חג:'✡️ חגים', אסיפה:'👥 אסיפות'};
-  const colors = {בוחן:'#93c5fd', אירוע:'#6ee7b7', טיול:'#fcd34d', חג:'#c4b5fd', אסיפה:'#f87171'};
-
-  const el = document.getElementById('stats-grid');
-  el.innerHTML = `<div class="stat-row">` +
-    types.map(t => {
-      const count = allEvents.filter(e=>e.type===t).length;
-      return `
-        <div class="stat-box">
-          <div class="stat-val" style="color:${colors[t]}">${count}</div>
-          <div class="stat-lbl">${labels[t]}</div>
-        </div>`;
-    }).join('') +
-  `</div>`;
+function mTabs(evs,cid,active,fn){
+  const months=[...new Set(evs.map(e=>{const[,m,y]=e.date.split('/');return`${m}/${y}`;}))].slice(0,10);
+  document.getElementById(cid).innerHTML=
+    `<button class="mtag ${active==='all'?'active':''}" onclick="${fn}('all',this)">הכל</button>`+
+    months.map(my=>{const[m]=my.split('/');return`<button class="mtag ${active===my?'active':''}" onclick="${fn}('${my}',this)">${MS[+m]}</button>`;}).join('');
 }
 
-function renderNextEvent(future) {
-  const el = document.getElementById('next-event');
-  if (!future.length) {
-    el.innerHTML = `<div style="color:rgba(255,255,255,0.2);text-align:center;padding:40px">אין אירועים קרובים</div>`;
-    return;
+async function load(){
+  const btn=document.getElementById('rbtn');
+  btn.disabled=true; btn.textContent='טוען...';
+  setSt('loading','מתחבר...');
+  try{
+    const r=await fetch(`${BACKEND}/events`);
+    const d=await r.json();
+    const evs=d.events||[];
+    if(evs.length>0){
+      all=evs; setSt('ok',`${all.length} אירועים נטענו`); renderAll();
+    } else {
+      setSt('loading','טוען מ-Google Doc...');
+      const r2=await fetch(`${BACKEND}/refresh`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({secret:SECRET,doc_url:DOC_URL})});
+      const d2=await r2.json();
+      if(r2.ok&&d2.events){all=d2.events;setSt('ok',`${all.length} אירועים נטענו`);renderAll();}
+      else setSt('error','שגיאה בטעינה');
+    }
+  }catch(e){setSt('error','שגיאת חיבור');}
+  finally{btn.disabled=false;btn.textContent='↻ רענן';}
+}
+
+function renderAll(){renderEv();renderT();renderG();}
+
+function renderEv(){
+  let evs=byClass(all.filter(e=>e.type!=='בוחן')).sort((a,b)=>pd(a.date)-pd(b.date));
+  mTabs(evs,'evmons',evm,'setEvm');
+  const f=byMonth(evs,evm);
+  document.getElementById('evcnt').textContent=`${f.length} אירועים`;
+  document.getElementById('evbody').innerHTML=f.length?f.map(e=>row(e,true)).join(''):`<div class="empty">אין אירועים</div>`;
+}
+window.setEvm=function(m,btn){evm=m;document.querySelectorAll('#evmons .mtag').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderEv();};
+
+function renderT(){
+  let evs=byClass(all.filter(e=>e.type==='בוחן')).sort((a,b)=>pd(a.date)-pd(b.date));
+  mTabs(evs,'tmons',tm,'setTm');
+  const f=byMonth(evs,tm);
+  document.getElementById('tcnt').textContent=`${f.length} בוחנים`;
+  document.getElementById('tbody').innerHTML=f.length?f.map(e=>row(e,false)).join(''):`<div class="empty">אין בוחנים</div>`;
+}
+window.setTm=function(m,btn){tm=m;document.querySelectorAll('#tmons .mtag').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderT();};
+
+function row(e,showBadge){
+  const[d,m]=e.date.split('/');
+  const days=dl(e.date);
+  const ds=days===0?'היום':days===1?'מחר':days<0?`לפני ${Math.abs(days)}י`:`${days} ימים`;
+  const dc=days===0?'today':days>0&&days<=5?'soon':days<0?'past':'norm';
+  return`<div class="row">
+    <div class="dblock"><div class="dday">${d}</div><div class="dmon">${MS[+m]}</div></div>
+    <div class="dsep"></div>
+    <div class="rinfo">
+      <div class="rtitle">${e.title}</div>
+      <div class="rmeta"><span class="dp dp-${dc}">${ds}</span></div>
+    </div>
+    ${showBadge?`<div class="rbadge b-${e.type}">${e.type}</div>`:''}
+  </div>`;
+}
+
+const GD={
+  'ז1':{מתמטיקה:88,אנגלית:92,'תנ"ך':79,היסטוריה:85,מדעים:91},
+  'ז2':{מתמטיקה:74,אנגלית:81,'תנ"ך':69,היסטוריה:77,מדעים:83},
+  'ז3':{מתמטיקה:91,אנגלית:87,'תנ"ך':93,היסטוריה:89,מדעים:86},
+  'ז4':{מתמטיקה:68,אנגלית:72,'תנ"ך':75,היסטוריה:71,מדעים:69},
+  'ח1':{מתמטיקה:85,אנגלית:88,'תנ"ך':82,היסטוריה:90,מדעים:87},
+  'ח2':{מתמטיקה:63,אנגלית:70,'תנ"ך':67,היסטוריה:65,מדעים:72},
+  'ח3':{מתמטיקה:79,אנגלית:84,'תנ"ך':81,היסטוריה:78,מדעים:80},
+  'ט1':{מתמטיקה:90,אנגלית:93,'תנ"ך':88,היסטוריה:91,מדעים:89},
+  'ט2':{מתמטיקה:76,אנגלית:79,'תנ"ך':74,היסטוריה:80,מדעים:77},
+  'ט3':{מתמטיקה:82,אנגלית:85,'תנ"ך':83,היסטוריה:81,מדעים:84},
+};
+
+function setSubj(s,btn){subj=s;document.querySelectorAll('.panel:last-child .mbar .mtag').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderG();}
+
+function renderG(){
+  const subs=subj==='all'?['מתמטיקה','אנגלית','תנ"ך','היסטוריה','מדעים']:[subj];
+  let classes=Object.keys(GD);
+  if(cls!=='all'){
+    if(cls.length===1) classes=classes.filter(c=>c[0]===cls);
+    else classes=classes.filter(c=>c===cls);
   }
-
-  const e = future[0];
-  const d = daysFromNow(e.date);
-  const dStr = d === 0 ? 'היום!' : d === 1 ? 'מחר' : `בעוד ${d} ימים`;
-  const colors = {בוחן:'#93c5fd', אירוע:'#6ee7b7', טיול:'#fcd34d', חג:'#c4b5fd', אסיפה:'#f87171'};
-  const icons  = {בוחן:'📝', אירוע:'🎉', טיול:'🗺️', חג:'✡️', אסיפה:'👥'};
-
-  el.innerHTML = `
-    <div style="text-align:center;padding:16px 0">
-      <div style="font-size:48px;margin-bottom:12px">${icons[e.type]||'📅'}</div>
-      <div style="font-size:16px;font-weight:700;margin-bottom:6px">${e.title}</div>
-      <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:14px">${formatDate(e.date)}</div>
-      <div style="display:inline-block;padding:6px 18px;border-radius:20px;font-size:13px;font-weight:700;background:rgba(255,255,255,0.06);color:${colors[e.type]||'#93c5fd'}">${dStr}</div>
+  if(!classes.length){document.getElementById('gbody').innerHTML='<div class="empty">אין נתונים לכיתה זו</div>';return;}
+  document.getElementById('gbody').innerHTML=classes.map(c=>{
+    const d=GD[c];
+    return`<div class="gsec">
+      <div class="gclslbl">כיתה ${c}</div>
+      ${subs.map(s=>{
+        const v=d[s]||0,cl=v>=85?'hi':v>=70?'md':'lo';
+        return`<div class="grow"><span class="gsubj">${s}</span><div class="gbw"><div class="gb g${cl}" style="width:${v}%"></div></div><span class="gval ${cl}">${v}</span></div>`;
+      }).join('')}
     </div>`;
+  }).join('');
 }
 
-// Load on start
-loadData();
+load();
 </script>
 </body>
 </html>

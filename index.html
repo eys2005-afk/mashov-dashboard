@@ -291,7 +291,9 @@ body {
 </div>
 
 <script>
-const BACKEND = 'https://mashov-backend.onrender.com';
+const BACKEND   = 'https://mashov-backend.onrender.com';
+const DOC_URL   = 'https://docs.google.com/document/d/1lUqdjDE9ir21p8cHeqKxyzzgfCKFuwl3RAreXi6CtAk/edit';
+const SECRET    = 'mashov2026';
 let allEvents = [];
 let activeMonth = null;
 const today = new Date();
@@ -332,15 +334,41 @@ async function loadData() {
   try {
     const res = await fetch(`${BACKEND}/events`);
     const data = await res.json();
-    allEvents = data.events || data['אירועים'] || [];
+    const events = data.events || data['אירועים'] || [];
 
-    setStatus('ok', `עודכן • ${allEvents.length} אירועים נטענו מ-Google Doc`);
-    renderAll();
+    if (events.length > 0) {
+      allEvents = events;
+      setStatus('ok', `עודכן • ${allEvents.length} אירועים נטענו`);
+      renderAll();
+    } else {
+      setStatus('loading', 'טוען נתונים מ-Google Doc...');
+      await doBackendRefresh();
+    }
   } catch(e) {
     setStatus('error', 'שגיאת חיבור ל-Backend');
   } finally {
     btn.disabled = false;
     btn.textContent = '↻ רענן נתונים';
+  }
+}
+
+async function doBackendRefresh() {
+  try {
+    const res = await fetch(`${BACKEND}/refresh`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ secret: SECRET, doc_url: DOC_URL })
+    });
+    const data = await res.json();
+    if (res.ok && data.events) {
+      allEvents = data.events;
+      setStatus('ok', `עודכן • ${allEvents.length} אירועים נטענו מ-Google Doc`);
+      renderAll();
+    } else {
+      setStatus('error', 'שגיאה בטעינת נתונים');
+    }
+  } catch(e) {
+    setStatus('error', 'שגיאת חיבור בעת רענון');
   }
 }
 
